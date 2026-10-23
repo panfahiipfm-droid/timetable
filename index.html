@@ -80,9 +80,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .btn.danger { color: var(--danger); }
 .btn.danger.armed { background: var(--danger); color: var(--bg); border-color: var(--danger); }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); }
-.tab { border: 0; background: transparent; padding: 10px 16px; font-weight: 600; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; min-height: 44px; margin-bottom: -1px; }
-.tab[aria-selected="true"] { color: var(--fg); border-bottom-color: var(--accent); }
 .toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
 .toolbar .spacer { flex: 1 1 0; }
 .opt { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
@@ -131,37 +128,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .empty { padding: 20px; text-align: center; color: var(--muted); }
 .hint { color: var(--muted); font-size: 0.85rem; }
 .copybox, .codebox { width: 100%; min-height: 110px; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 10px; font-family: var(--mono); font-size: 0.8rem; color: var(--fg); resize: vertical; }
-.sharebar .field { max-width: 280px; flex: 1 1 200px; }
-.people { display: flex; flex-wrap: wrap; gap: 8px; }
-.chip { display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px; border-radius: 999px; font-weight: 600; cursor: pointer; min-height: 40px; }
-.chip input { width: 18px; height: 18px; }
-.chip .x { border: 0; background: transparent; color: inherit; font-size: 1.15rem; line-height: 1; cursor: pointer; padding: 0 2px; min-height: 0; }
-.chip small { font-weight: 400; opacity: 0.8; }
-.ctl { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; margin-bottom: 12px; }
-.ctl label { display: flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
-.ctl select { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 6px 8px; min-height: 36px; color: var(--fg); }
-.fday { display: flex; gap: 12px; align-items: baseline; padding: 8px 0; border-top: 1px solid var(--line); }
-.fday > b { width: 64px; flex: none; }
-.slots { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
-.slot { background: var(--free); color: var(--fg); padding: 4px 10px; border-radius: 6px; font-family: var(--mono); font-size: 0.85rem; }
-.slot small { font-family: var(--font); color: var(--muted); margin-left: 6px; }
-.none { color: var(--muted); font-size: 0.9rem; }
-.heat { min-width: 560px; }
-.hrow { display: grid; grid-template-columns: 72px 1fr; border-top: 1px solid var(--line); }
-.hrow.head { border-top: 0; background: var(--bg); }
-.hrow .dn { padding: 10px 8px 10px 14px; font-weight: 600; border-right: 1px solid var(--line); position: sticky; left: 0; background: var(--surface); z-index: 1; font-size: 0.9rem; }
-.hrow.head .dn { background: var(--bg); }
-.hl { position: relative; height: 34px; font-family: var(--mono); font-size: 0.75rem; color: var(--muted); }
-.hl span { position: absolute; top: 8px; transform: translateX(-50%); }
-.hl span:first-child { transform: translateX(4px); }
-.hl span:last-child { transform: translateX(calc(-100% - 4px)); }
-.bar { display: flex; height: 40px; padding-block: 6px; }
-.seg { flex: 1; display: block; min-width: 0; }
-.seg:nth-child(4n+1) { border-left: 1px solid var(--line); }
-.seg.free { background: var(--free); }
-.seg.busy { background: var(--busy); opacity: var(--a); }
-.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
-.legend i { display: inline-block; width: 14px; height: 14px; border-radius: 3px; vertical-align: -2px; margin-right: 6px; }
 @media (prefers-reduced-motion: no-preference) { .btn { transition: border-color .15s, background .15s; } }
 </style>
 </head>
@@ -176,14 +142,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
     <div class="stats" id="stats"></div>
   </header>
 
-  <div class="tabs" role="tablist" aria-label="มุมมองตาราง">
-    <button type="button" class="tab" role="tab" id="tabMine" aria-selected="true" aria-controls="paneMine">ตารางของฉัน</button>
-    <button type="button" class="tab" role="tab" id="tabFriends" aria-selected="false" aria-controls="paneFriends">ตารางเพื่อน<span id="tabCount"></span></button>
-  </div>
-
   <div class="hint" id="saveStat" role="status"></div>
 
-  <section class="stack" id="paneMine" role="tabpanel" aria-labelledby="tabMine">
+  <section class="stack" id="paneMine">
     <div class="toolbar">
       <button class="btn primary" id="addBtn" type="button">+ เพิ่มวิชา</button>
       <button class="btn" id="dayCopyBtn" type="button">คัดลอกทั้งวัน</button>
@@ -241,21 +202,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
     <div class="scroller"><div class="tt" id="tt"></div></div>
 
-    <section class="panel sharebar" aria-labelledby="shareTitle">
-      <h2 id="shareTitle">แชร์ให้เพื่อน</h2>
-      <p class="hint" id="shareNote" style="margin:0 0 12px"></p>
-      <div class="dayrow">
-        <div class="field">
-          <label for="nickInput">ชื่อของคุณในรหัสตาราง (ไม่ใส่ก็ได้)</label>
-          <input id="nickInput" type="text" maxlength="30" autocomplete="off" placeholder="เช่น มิ้นท์">
-        </div>
-        <button class="btn primary" id="shareBtn" type="button">แชร์ตารางนี้ให้เพื่อนเห็น</button>
-        <button class="btn danger" id="unshareBtn" type="button" hidden>เลิกแชร์</button>
-        <button class="btn" id="codeBtn" type="button">คัดลอกรหัสตารางของฉัน</button>
-      </div>
-      <div class="msg" id="shareMsg" role="status"></div>
-    </section>
-
     <section class="panel" id="copyPanel" hidden>
       <h2 id="copyTitle">ข้อความตารางเรียน</h2>
       <textarea class="copybox" id="copyText" readonly></textarea>
@@ -263,55 +209,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
     </section>
   </section>
 
-  <section class="stack" id="paneFriends" role="tabpanel" aria-labelledby="tabFriends" hidden>
-    <section class="panel" aria-labelledby="pplTitle">
-      <h2 id="pplTitle">เลือกคนที่จะดู</h2>
-      <div class="people" id="people"></div>
-      <p class="hint" id="friendHint" style="margin:12px 0 0"></p>
-    </section>
-
-    <section class="panel" aria-labelledby="freeTitle">
-      <h2 id="freeTitle">เวลาว่างตรงกัน</h2>
-      <div class="ctl">
-        <label for="fS">ตั้งแต่ <select id="fS"></select></label>
-        <label for="fE">ถึง <select id="fE"></select></label>
-        <label for="fMin">ว่างอย่างน้อย
-          <select id="fMin">
-            <option value="30">30 นาที</option>
-            <option value="60" selected>1 ชั่วโมง</option>
-            <option value="120">2 ชั่วโมง</option>
-            <option value="180">3 ชั่วโมง</option>
-          </select>
-        </label>
-      </div>
-      <div id="freeList"></div>
-      <div class="scroller" style="margin-top:12px"><div class="heat" id="heat"></div></div>
-      <div class="legend">
-        <span><i style="background:var(--free)"></i>ว่างทุกคนที่เลือก</span>
-        <span><i style="background:var(--busy);opacity:.45"></i>มีคนติดเรียน</span>
-        <span><i style="background:var(--busy)"></i>ติดเรียนหลายคน (ยิ่งเข้มยิ่งติดมาก)</span>
-      </div>
-    </section>
-
-    <section class="panel" aria-labelledby="oneTitle">
-      <h2 id="oneTitle">ตารางของแต่ละคน</h2>
-      <div class="ctl">
-        <label for="viewWho">ดูตารางของ <select id="viewWho"></select></label>
-      </div>
-      <div class="scroller"><div class="tt ro" id="ttF"></div></div>
-    </section>
-
-    <section class="panel" aria-labelledby="impTitle">
-      <h2 id="impTitle">เพิ่มตารางเพื่อนจากรหัส</h2>
-      <p class="hint" style="margin:0 0 12px">ถ้าเพื่อนแชร์ในหน้านี้ไม่ได้ ให้เพื่อนกด “คัดลอกรหัสตารางของฉัน” แล้วส่งรหัสมาทางแชต วางที่นี่ ตารางจะเก็บไว้ในบัญชีของคุณเท่านั้น</p>
-      <div class="form">
-        <div class="field wide"><label for="codeIn">รหัสตาราง (ขึ้นต้นด้วย TT1:)</label><textarea class="codebox" id="codeIn" spellcheck="false"></textarea></div>
-        <div class="field"><label for="codeNick">ชื่อเพื่อน</label><input id="codeNick" type="text" maxlength="30" autocomplete="off"></div>
-      </div>
-      <div class="actions"><button class="btn primary" id="codeAdd" type="button">เพิ่มตารางเพื่อน</button></div>
-      <div class="msg" id="codeMsg" role="status"></div>
-    </section>
-  </section>
 </div>
 
 <script>
@@ -321,7 +218,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
     { k: 5, n: 'ศุกร์' }, { k: 6, n: 'เสาร์' }, { k: 7, n: 'อาทิตย์' }
   ];
   var COLORS = 6;
-  var STANDALONE = !(window.claude && window.claude.use);
   var KEY = 'timetable-v1';
   var SAMPLE = [
     { name: 'การเขียนโปรแกรมเบื้องต้น', code: '01418112', room: 'SC 2-301', teacher: 'อ.สมชาย', day: 1, s: 540, e: 720, c: 1 },
@@ -365,18 +261,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   function norm(raw) {
     raw = raw && typeof raw === 'object' ? raw : {};
     var list = cleanList(raw.classes, 300);
-    var imps = [];
-    if (Array.isArray(raw.imports)) raw.imports.slice(0, 20).forEach(function (m, i) {
-      if (!m || typeof m !== 'object') return;
-      var id = String(m.id == null ? 'x' + i : m.id).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 20) || ('x' + i);
-      imps.push({ id: id, nick: str(m.nick, 30), classes: cleanList(m.classes, 300) });
-    });
     return {
       classes: list,
       startH: num(raw.startH, 6, 12, 8), endH: num(raw.endH, 13, 22, 17),
       weekend: !!raw.weekend, nextId: Math.max(100, list.length + 1),
-      shared: !!raw.shared, nick: str(raw.nick, 30),
-      imports: imps, nextImp: num(raw.nextImp, 1, 100000, imps.length + 1),
       isSample: typeof raw.isSample === 'boolean' ? raw.isSample : looksSample(list)
     };
   }
@@ -388,108 +276,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
     if (raw) { var p = JSON.parse(raw); if (p && Array.isArray(p.classes)) { state = norm(p); loadedLocal = true; } }
   } catch (e) {}
 
-  var editingId = null, pickedColor = 1, delArmed = false, clearArmed = false, unshareArmed = false;
-  var tab = 'mine';
-  var remote = null, sharedRef = null, userNS = null, myId = null, canWrite = null;
-  var friends = [], profs = {}, friendsErr = false, off = {}, viewKey = 'me';
-  var saveTimer = null, saving = false, dirty = false, lastPriv = '';
-  var pushTimer = null, pushing = false, pushAgain = false, lastPushed = '';
+  var editingId = null, pickedColor = 1, delArmed = false, clearArmed = false;
 
   function setStatus(t) { $('saveStat').textContent = t; }
-  function shareMsg(t) { $('shareMsg').textContent = t; }
   function touch() { state.isSample = false; }
 
-  // ---- saving: this browser always, the viewer's own account when signed in, the shared store only after "share" ----
-  function sharedPayload() {
-    return {
-      nick: state.nick,
-      classes: state.classes.map(function (c) { return { name: c.name, code: c.code, room: c.room, teacher: c.teacher, day: c.day, s: c.s, e: c.e, c: c.c }; })
-    };
-  }
-  function save() {
-    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
-    if (remote) { dirty = true; clearTimeout(saveTimer); saveTimer = setTimeout(flush, 600); }
-    if (state.shared && sharedRef) { clearTimeout(pushTimer); pushTimer = setTimeout(pushShared, 800); }
-  }
-  function flush() {
-    if (saving) { saveTimer = setTimeout(flush, 400); return; }
-    if (!dirty || !remote) return;
-    dirty = false;
-    var json = JSON.stringify(state);
-    if (json === lastPriv) return;
-    saving = true;
-    remote.set({ data: json, savedAt: Date.now() }).then(
-      function () { saving = false; lastPriv = json; setStatus('บันทึกลงบัญชีของคุณแล้ว เปิดจากเครื่องอื่นก็เห็นตารางเดียวกัน'); },
-      function () { saving = false; dirty = true; setStatus('บันทึกลงบัญชีไม่สำเร็จ ตารางยังเก็บไว้ในเบราว์เซอร์นี้'); }
-    );
-  }
-  function pushShared() {
-    if (!sharedRef || !state.shared) return;
-    var payload = sharedPayload(), key = JSON.stringify(payload);
-    if (key === lastPushed) return;
-    if (pushing) { pushAgain = true; return; }
-    pushing = true;
-    payload.updatedAt = Date.now();
-    sharedRef.set(payload).then(function () {
-      pushing = false; lastPushed = key;
-      var d = new Date();
-      shareMsg('เพื่อนเห็นตารางล่าสุดของคุณแล้ว (อัปเดตเมื่อ ' + pad(d.getHours()) + ':' + pad(d.getMinutes()) + ')');
-      if (pushAgain) { pushAgain = false; pushShared(); }
-    }, function (err) {
-      pushing = false; pushAgain = false;
-      state.shared = false; save(); paintShare();
-      shareMsg(err && err.code === 'invalid_argument'
-        ? 'บัญชีนี้ยังไม่มีสิทธิ์แชร์ตาราง ให้เจ้าของหน้าตั้งสิทธิ์ให้แก้ไขข้อมูลได้ในเมนูแชร์ แล้วเปิดหน้านี้ใหม่ หรือใช้รหัสตารางส่งให้เพื่อนแทน'
-        : 'แชร์ไม่สำเร็จ ลองใหม่อีกครั้ง');
-    });
-  }
-
-  function initRemote() {
-    if (!window.claude || !window.claude.use) { setStatus('ตารางเก็บไว้ในเบราว์เซอร์นี้เท่านั้น'); paintShare(); return; }
-    Promise.all([window.claude.use('user'), window.claude.use('db')]).then(function (r) {
-      userNS = r[0]; var db = r[1];
-      if (!userNS || !db) { setStatus('ตารางเก็บไว้ในเบราว์เซอร์นี้เท่านั้น (ยังไม่ได้เข้าสู่ระบบ)'); return; }
-      return userNS.id().then(function (id) {
-        if (!id) { setStatus('ตารางเก็บไว้ในเบราว์เซอร์นี้เท่านั้น'); return; }
-        myId = id;
-        remote = db.collection('data/users/' + id).doc('timetable');
-        sharedRef = db.doc('shared/' + id);
-        return userNS.can('data.write').then(function (ok) { canWrite = ok; }).then(function () {
-          subscribeFriends(db);
-          return remote.get().then(function (snap) {
-            if (snap.exists) {
-              var d = snap.data(), parsed = null;
-              try { parsed = JSON.parse(d.data); } catch (e) {}
-              if (parsed && Array.isArray(parsed.classes)) {
-                state = norm(parsed);
-                lastPriv = JSON.stringify(state);
-                try { localStorage.setItem(KEY, lastPriv); } catch (e) {}
-                render(true); renderFriends();
-                setStatus('โหลดตารางที่บันทึกไว้ในบัญชีของคุณแล้ว');
-                return;
-              }
-            }
-            if (loadedLocal) { save(); } else { setStatus('แก้ตารางแล้วระบบจะบันทึกลงบัญชีของคุณให้อัตโนมัติ'); }
-          });
-        });
-      });
-    }).catch(function () { remote = null; sharedRef = null; setStatus('ตารางเก็บไว้ในเบราว์เซอร์นี้เท่านั้น'); })
-      .then(function () { paintShare(); renderFriends(); });
-  }
-  function subscribeFriends(db) {
-    try {
-      db.collection('shared').onSnapshot(function (snap) {
-        friendsErr = false;
-        friends = snap.docs.map(function (d) {
-          var v = d.data() || {};
-          return { id: d.id, nick: str(v.nick, 30), classes: cleanList(v.classes, 300), updatedAt: Number(v.updatedAt) || 0 };
-        });
-        var ids = friends.map(function (f) { return f.id; });
-        if (userNS && ids.length) userNS.profiles(ids).then(function (ps) { profs = ps || {}; renderFriends(); });
-        renderFriends();
-      }, function () { friendsErr = true; renderFriends(); });
-    } catch (e) { friendsErr = true; }
-  }
+  // ---- saving: this browser only ----
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
 
   // ---- layout helpers ----
   function layout(list) {
@@ -552,8 +345,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
   // ---- static controls ----
   var sH = $('startH'), eH = $('endH'), fDay = $('fDay');
-  for (var h = 6; h <= 12; h++) { sH.innerHTML += '<option value="' + h + '">' + pad(h) + ':00</option>'; $('fS').innerHTML += '<option value="' + h + '"' + (h === 8 ? ' selected' : '') + '>' + pad(h) + ':00</option>'; }
-  for (var h2 = 13; h2 <= 22; h2++) { eH.innerHTML += '<option value="' + h2 + '">' + pad(h2) + ':00</option>'; $('fE').innerHTML += '<option value="' + h2 + '"' + (h2 === 18 ? ' selected' : '') + '>' + pad(h2) + ':00</option>'; }
+  for (var h = 6; h <= 12; h++) sH.innerHTML += '<option value="' + h + '">' + pad(h) + ':00</option>';
+  for (var h2 = 13; h2 <= 22; h2++) eH.innerHTML += '<option value="' + h2 + '">' + pad(h2) + ':00</option>';
   DAYS.forEach(function (d) { fDay.innerHTML += '<option value="' + d.k + '">' + d.n + '</option>'; });
   var sw = $('swatches');
   for (var i = 1; i <= COLORS; i++) {
@@ -600,8 +393,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
     var hrs = totalMin / 60;
     $('stats').innerHTML = '<span><b>' + state.classes.length + '</b> วิชา</span><span><b>' + (Math.round(hrs * 10) / 10) + '</b> ชม./สัปดาห์</span>';
     $('sub').textContent = state.isSample
-      ? 'ตอนนี้เป็นวิชาตัวอย่าง กด “ล้างทั้งหมด” แล้วใส่วิชาของคุณเอง ' + (STANDALONE ? 'ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้' : 'ตารางเป็นส่วนตัวจนกว่าคุณจะกดแชร์ให้เพื่อน') + ''
-      : 'แตะวิชาเพื่อแก้ไข หรือแตะช่องว่างในแถววันเพื่อเพิ่มวิชาใหม่ ' + (STANDALONE ? 'ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้' : 'ตารางเป็นส่วนตัวจนกว่าคุณจะกดแชร์ให้เพื่อน') + '';
+      ? 'ตอนนี้เป็นวิชาตัวอย่าง กด “ล้างทั้งหมด” แล้วใส่วิชาของคุณเอง ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้'
+      : 'แตะวิชาเพื่อแก้ไข หรือแตะช่องว่างในแถววันเพื่อเพิ่มวิชาใหม่ ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้';
     var note = $('clashNote'), msgs = [];
     if (g.clash) msgs.push('มีวิชาที่เวลาซ้อนกัน ' + g.clash + ' วิชา (กรอบประสีแดง)');
     if (g.outside) msgs.push('มี ' + g.outside + ' วิชาอยู่นอกช่วงเวลาที่แสดง ปรับช่วงเวลาด้านบนเพื่อดู');
@@ -821,7 +614,6 @@ button, input, select, textarea { font: inherit; color: inherit; }
   });
   document.addEventListener('click', function (e) {
     if (clearArmed && e.target !== $('clearBtn')) { clearArmed = false; $('clearBtn').textContent = 'ล้างทั้งหมด'; $('clearBtn').classList.remove('armed'); }
-    if (unshareArmed && e.target !== $('unshareBtn')) { unshareArmed = false; $('unshareBtn').textContent = 'เลิกแชร์'; }
   });
 
   function showCopy(title, text, doneMsg) {
@@ -847,201 +639,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
     showCopy('ข้อความตารางเรียน', lines.join('\n') || 'ยังไม่มีวิชา', 'คัดลอกแล้ว');
   });
 
-  // ---- sharing with friends ----
-  function b64enc(s) {
-    var bytes = new TextEncoder().encode(s), bin = '';
-    for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-    return btoa(bin);
-  }
-  function b64dec(b) {
-    var bin = atob(b), bytes = new Uint8Array(bin.length);
-    for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-    return new TextDecoder().decode(bytes);
-  }
-  function makeCode() {
-    var arr = state.classes.map(function (c) { return [c.name, c.code, c.room, c.teacher, c.day, c.s, c.e, c.c]; });
-    return 'TT1:' + b64enc(JSON.stringify({ v: 1, n: state.nick || '', c: arr }));
-  }
-  function readCode(text) {
-    text = String(text || '').trim();
-    if (text.indexOf('TT1:') !== 0) throw new Error('bad');
-    var obj = JSON.parse(b64dec(text.slice(4).replace(/\s+/g, '')));
-    var rows = Array.isArray(obj.c) ? obj.c : [];
-    var list = cleanList(rows.map(function (r) { return Array.isArray(r) ? { name: r[0], code: r[1], room: r[2], teacher: r[3], day: r[4], s: r[5], e: r[6], c: r[7] } : null; }), 300);
-    return { nick: str(obj.n, 30), classes: list };
-  }
-
-  function paintShare() {
-    var on = !!state.shared;
-    if (STANDALONE) {
-      $('shareBtn').hidden = true; $('unshareBtn').hidden = true;
-      $('shareNote').textContent = 'ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้ ส่งให้เพื่อนด้วยรหัสตาราง: ใส่ชื่อ กดปุ่มด้านล่าง แล้วส่งรหัสให้เพื่อนทางแชต';
-      var n0 = $('nickInput'); if (document.activeElement !== n0) n0.value = state.nick;
-      return;
-    }
-    $('shareBtn').hidden = on; $('unshareBtn').hidden = !on;
-    var note = on
-      ? 'เพื่อนที่เปิดลิงก์นี้เห็นตารางของคุณอยู่ และอัปเดตให้เองทุกครั้งที่คุณแก้'
-      : 'ตอนนี้ตารางของคุณเป็นส่วนตัว เพื่อนยังไม่เห็น กดแชร์เมื่อใส่วิชาจริงเสร็จแล้ว';
-    if (canWrite === false) note = 'บัญชีที่เปิดหน้านี้ดูตารางเพื่อนได้ แต่ยังแชร์ตารางของตัวเองไม่ได้ ให้เจ้าของหน้าตั้งสิทธิ์ให้แก้ไขข้อมูลได้ในเมนูแชร์ หรือใช้ “คัดลอกรหัสตารางของฉัน” ส่งให้เพื่อนแทน';
-    $('shareNote').textContent = note;
-    $('shareBtn').disabled = canWrite === false;
-    var ni = $('nickInput'); if (document.activeElement !== ni) ni.value = state.nick;
-  }
-  $('nickInput').addEventListener('change', function () {
-    state.nick = this.value.trim().slice(0, 30); save(); renderFriends();
-  });
-  $('shareBtn').addEventListener('click', function () {
-    if (state.isSample || !state.classes.length) { shareMsg('ใส่วิชาจริงของคุณก่อนแชร์ ตอนนี้ตารางยังว่างอยู่หรือเป็นวิชาตัวอย่าง'); return; }
-    if (!sharedRef) { shareMsg('ยังแชร์ไม่ได้ในตอนนี้ ต้องเปิดหน้านี้ในบัญชี claude.ai ที่เข้าสู่ระบบแล้ว หรือใช้รหัสตารางส่งให้เพื่อนแทน'); return; }
-    state.nick = $('nickInput').value.trim().slice(0, 30);
-    state.shared = true; lastPushed = '';
-    save(); paintShare(); shareMsg('กำลังแชร์…');
-    clearTimeout(pushTimer); pushShared();
-  });
-  $('unshareBtn').addEventListener('click', function () {
-    if (!unshareArmed) { unshareArmed = true; this.textContent = 'กดอีกครั้งเพื่อเลิกแชร์'; return; }
-    unshareArmed = false; this.textContent = 'เลิกแชร์';
-    if (!sharedRef) { state.shared = false; save(); paintShare(); return; }
-    sharedRef.delete().then(function () {
-      state.shared = false; lastPushed = ''; save(); paintShare();
-      shareMsg('เลิกแชร์แล้ว ตารางของคุณหายจากหน้าของเพื่อน');
-    }, function () { shareMsg('เลิกแชร์ไม่สำเร็จ ลองใหม่อีกครั้ง'); });
-  });
-  $('codeBtn').addEventListener('click', function () {
-    if (!state.classes.length) { shareMsg('ยังไม่มีวิชาให้สร้างรหัส'); return; }
-    showCopy('รหัสตารางของฉัน', makeCode(), 'คัดลอกรหัสแล้ว ส่งให้เพื่อนทางแชตได้เลย');
-  });
-
-  // ---- friends tab ----
-  function people() {
-    var list = [{ key: 'me', name: 'ฉัน', kind: 'me', classes: state.classes }];
-    var anon = 0;
-    friends.forEach(function (f) {
-      if (f.id === myId) return;
-      var pn = profs[f.id] && profs[f.id].name;
-      list.push({ key: 's:' + f.id, name: f.nick || pn || ('เพื่อน ' + (++anon)), kind: 'shared', classes: f.classes });
-    });
-    state.imports.forEach(function (m) { list.push({ key: 'i:' + m.id, name: m.nick || 'เพื่อน (นำเข้า)', kind: 'import', id: m.id, classes: m.classes }); });
-    return list;
-  }
-  function rangeFor(list) {
-    var s = 8, e = 17, wk = false;
-    list.forEach(function (c) { s = Math.min(s, Math.floor(c.s / 60)); e = Math.max(e, Math.ceil(c.e / 60)); if (c.day > 5) wk = true; });
-    return { startH: Math.max(6, Math.min(12, s)), endH: Math.min(22, Math.max(13, e)), days: DAYS.filter(function (d) { return d.k <= 5 || wk; }) };
-  }
-  function freeInfo(sel, w0, w1, minLen) {
-    var days = DAYS.filter(function (d) { return d.k <= 5 || sel.some(function (p) { return p.classes.some(function (c) { return c.day === d.k; }); }); });
-    return days.map(function (d) {
-      var busy = [];
-      sel.forEach(function (p) { p.classes.forEach(function (c) { if (c.day === d.k && c.e > w0 && c.s < w1) busy.push([Math.max(c.s, w0), Math.min(c.e, w1)]); }); });
-      busy.sort(function (a, b) { return a[0] - b[0]; });
-      var merged = [];
-      busy.forEach(function (b) { var l = merged[merged.length - 1]; if (l && b[0] <= l[1]) l[1] = Math.max(l[1], b[1]); else merged.push([b[0], b[1]]); });
-      var free = [], cur = w0;
-      merged.forEach(function (m) { if (m[0] - cur >= minLen) free.push([cur, m[0]]); cur = Math.max(cur, m[1]); });
-      if (w1 - cur >= minLen) free.push([cur, w1]);
-      return { d: d, free: free };
-    });
-  }
-  function renderFree(sel) {
-    var list = $('freeList'), heat = $('heat');
-    if (!sel.length) { list.innerHTML = '<p class="none">เลือกอย่างน้อยหนึ่งคนด้านบน</p>'; heat.innerHTML = ''; return; }
-    var w0 = +$('fS').value * 60, w1 = +$('fE').value * 60, minLen = +$('fMin').value;
-    var info = freeInfo(sel, w0, w1, minLen), any = false;
-    var html = info.map(function (x) {
-      var slots = x.free.map(function (f) { any = true; return '<span class="slot">' + fmt(f[0]) + '–' + fmt(f[1]) + '<small>' + dur(f[1] - f[0]) + '</small></span>'; }).join('');
-      return '<div class="fday"><b>' + x.d.n + '</b><div class="slots">' + (slots || '<span class="none">ไม่มีช่วงว่างตรงกัน</span>') + '</div></div>';
-    }).join('');
-    if (!any) html = '<p class="none" style="margin:0 0 8px">ไม่มีช่วงเวลาที่ทุกคนว่างตรงกันตามเงื่อนไขนี้ ลองลดเวลาขั้นต่ำหรือขยายช่วงเวลา</p>' + html;
-    list.innerHTML = html;
-    var N = (w1 - w0) / 15, n = sel.length;
-    var h = '<div class="hrow head"><div class="dn">วัน</div><div class="hl">';
-    for (var t = w0 / 60; t <= w1 / 60; t++) h += '<span style="left:' + ((t * 60 - w0) / (w1 - w0) * 100) + '%">' + pad(t) + ':00</span>';
-    h += '</div></div>';
-    info.forEach(function (x) {
-      h += '<div class="hrow"><div class="dn">' + x.d.n + '</div><div class="bar">';
-      for (var i = 0; i < N; i++) {
-        var a = w0 + i * 15, b = a + 15, who = [];
-        sel.forEach(function (p) { if (p.classes.some(function (c) { return c.day === x.d.k && c.s < b && c.e > a; })) who.push(p.name); });
-        if (!who.length) h += '<i class="seg free" title="' + fmt(a) + ' ว่างทุกคน"></i>';
-        else h += '<i class="seg busy" style="--a:' + (0.3 + 0.7 * who.length / n).toFixed(2) + '" title="' + esc(fmt(a) + ' ติดเรียน: ' + who.join(', ')) + '"></i>';
-      }
-      h += '</div></div>';
-    });
-    heat.innerHTML = h;
-  }
-  function renderFriends() {
-    var ps = people();
-    $('tabCount').textContent = ps.length > 1 ? ' (' + (ps.length - 1) + ')' : '';
-    if (tab !== 'friends') return;
-    $('people').innerHTML = ps.map(function (p, i) {
-      var k = i % COLORS + 1;
-      return '<label class="chip" style="background:var(--c' + k + '-bg);color:var(--c' + k + '-fg)"><input type="checkbox" data-key="' + esc(p.key) + '"' + (off[p.key] ? '' : ' checked') + '> <span>' + esc(p.name) + '</span>'
-        + (p.kind === 'import' ? '<small>นำเข้า</small><button type="button" class="x" data-rm="' + esc(p.id) + '" aria-label="ลบตารางของ ' + esc(p.name) + '">×</button>' : '') + '</label>';
-    }).join('');
-    var hint = [];
-    if (friendsErr) hint.push('ดูตารางที่เพื่อนแชร์ไม่ได้ในตอนนี้ ต้องเปิดหน้านี้ในบัญชี claude.ai ที่เข้าสู่ระบบแล้ว');
-    else if (ps.length === 1) hint.push('ยังไม่มีเพื่อนแชร์ตาราง ส่งลิงก์หน้านี้ให้เพื่อน แล้วให้เพื่อนใส่วิชาในแท็บ “ตารางของฉัน” และกด “แชร์ตารางนี้ให้เพื่อนเห็น”');
-    if (!state.shared) hint.push('ตารางของคุณยังไม่ได้แชร์ เพื่อนจะยังไม่เห็น');
-    $('friendHint').textContent = STANDALONE
-      ? (ps.length === 1 ? 'ยังไม่มีตารางเพื่อน ให้เพื่อนกด “คัดลอกรหัสตารางของฉัน” ในแท็บตารางของเขา แล้วเอารหัสมาวางในช่อง “เพิ่มตารางเพื่อนจากรหัส” ด้านล่าง' : '')
-      : hint.join(' · ');
-    renderFree(ps.filter(function (p) { return !off[p.key]; }));
-    var vs = $('viewWho');
-    vs.innerHTML = ps.map(function (p) { return '<option value="' + esc(p.key) + '">' + esc(p.name) + '</option>'; }).join('');
-    if (!ps.some(function (p) { return p.key === viewKey; })) viewKey = ps[ps.length > 1 ? 1 : 0].key;
-    vs.value = viewKey;
-    var who = ps.filter(function (p) { return p.key === viewKey; })[0];
-    var rg = rangeFor(who.classes);
-    var g = gridHTML(who.classes, rg);
-    $('ttF').innerHTML = g.html;
-    $('ttF').style.minWidth = g.minWidth + 'px';
-    if (!who.classes.length) $('ttF').insertAdjacentHTML('beforeend', '<div class="empty">' + esc(who.name) + ' ยังไม่มีวิชาในตาราง</div>');
-    fit();
-  }
-  $('people').addEventListener('change', function (e) {
-    var cb = e.target.closest('input[data-key]'); if (!cb) return;
-    if (cb.checked) delete off[cb.dataset.key]; else off[cb.dataset.key] = true;
-    renderFriends();
-  });
-  $('people').addEventListener('click', function (e) {
-    var x = e.target.closest('.x'); if (!x) return;
-    e.preventDefault();
-    var id = x.dataset.rm;
-    state.imports = state.imports.filter(function (m) { return m.id !== id; });
-    save(); renderFriends();
-  });
-  ['fS', 'fE', 'fMin'].forEach(function (id) { $(id).addEventListener('change', renderFriends); });
-  $('viewWho').addEventListener('change', function () { viewKey = this.value; renderFriends(); });
-  $('codeAdd').addEventListener('click', function () {
-    var msg = $('codeMsg');
-    if (state.imports.length >= 20) { msg.textContent = 'เพิ่มตารางจากรหัสได้สูงสุด 20 คน ลบบางคนออกก่อน'; return; }
-    var got;
-    try { got = readCode($('codeIn').value); } catch (e) { msg.textContent = 'อ่านรหัสไม่ได้ ตรวจว่าคัดลอกมาครบ ขึ้นต้นด้วย TT1:'; return; }
-    if (!got.classes.length) { msg.textContent = 'รหัสนี้ไม่มีวิชาอยู่เลย'; return; }
-    var nick = $('codeNick').value.trim().slice(0, 30) || got.nick || 'เพื่อน (นำเข้า)';
-    state.imports.push({ id: 'm' + state.nextImp++, nick: nick, classes: got.classes });
-    save(); $('codeIn').value = ''; $('codeNick').value = '';
-    msg.textContent = 'เพิ่มตารางของ ' + nick + ' แล้ว (' + got.classes.length + ' วิชา)';
-    renderFriends();
-  });
-
-  // ---- tabs ----
-  function setTab(t) {
-    tab = t;
-    $('paneMine').hidden = t !== 'mine'; $('paneFriends').hidden = t !== 'friends';
-    $('tabMine').setAttribute('aria-selected', String(t === 'mine'));
-    $('tabFriends').setAttribute('aria-selected', String(t === 'friends'));
-    if (t === 'friends') renderFriends(); else fit();
-  }
-  $('tabMine').addEventListener('click', function () { setTab('mine'); });
-  $('tabFriends').addEventListener('click', function () { setTab('friends'); });
-
   render(true);
-  paintShare();
-  renderFriends();
-  initRemote();
+  setStatus('ตารางเก็บไว้ในเบราว์เซอร์เครื่องนี้ ถ้าล้างข้อมูลเบราว์เซอร์หรือเปลี่ยนเครื่อง ตารางจะหาย');
 })();
 </script>
 </body>
