@@ -125,6 +125,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .chk2 { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 .chk2 input { width: 18px; height: 18px; }
 .msg { color: var(--muted); font-size: 0.88rem; min-height: 1.3em; margin-top: 8px; }
+.tpick { display: flex; align-items: center; gap: 6px; }
+.field .tpick select { width: auto; flex: 1; min-width: 0; }
+.durs { display: flex; flex-wrap: wrap; gap: 8px; }
+.dur { border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 6px 12px; min-height: 40px; cursor: pointer; }
+.dur:hover { border-color: var(--accent); }
+.dur[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); font-weight: 600; }
 .empty { padding: 20px; text-align: center; color: var(--muted); }
 .hint { color: var(--muted); font-size: 0.85rem; }
 .copybox, .codebox { width: 100%; min-height: 110px; border: 1px solid var(--line); background: var(--bg); border-radius: 6px; padding: 10px; font-family: var(--mono); font-size: 0.8rem; color: var(--fg); resize: vertical; }
@@ -187,8 +193,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
         <div class="field"><label for="fRoom">ห้องเรียน (ไม่บังคับ)</label><input id="fRoom" type="text" autocomplete="off"></div>
         <div class="field"><label for="fTeacher">อาจารย์ (ไม่บังคับ)</label><input id="fTeacher" type="text" autocomplete="off"></div>
         <div class="field"><label for="fDay">วัน</label><select id="fDay"></select></div>
-        <div class="field"><label for="fStart">เวลาเริ่ม</label><input id="fStart" type="time" step="900"></div>
-        <div class="field"><label for="fEnd">เวลาเลิก</label><input id="fEnd" type="time" step="900"></div>
+        <div class="field"><label id="stLbl">เวลาเริ่ม</label><div class="tpick" role="group" aria-labelledby="stLbl"><select id="fStartH" aria-label="ชั่วโมงที่เริ่ม"></select><span aria-hidden="true">:</span><select id="fStartM" aria-label="นาทีที่เริ่ม"></select></div></div>
+        <div class="field"><label id="enLbl">เวลาเลิก</label><div class="tpick" role="group" aria-labelledby="enLbl"><select id="fEndH" aria-label="ชั่วโมงที่เลิก"></select><span aria-hidden="true">:</span><select id="fEndM" aria-label="นาทีที่เลิก"></select></div></div>
+        <div class="field wide"><label id="durLbl">เรียนนานเท่าไร (แตะเพื่อตั้งเวลาเลิกให้อัตโนมัติ)</label><div class="durs" id="durs" role="group" aria-labelledby="durLbl"></div></div>
         <div class="field wide"><label id="colorLbl">สี</label><div class="swatches" id="swatches" role="group" aria-labelledby="colorLbl"></div></div>
         <div class="field wide"><label id="alsoLbl">เรียนวันอื่นด้วย (ติ๊กเพื่อคัดลอกวิชานี้ไปวันเหล่านั้น)</label><div class="daychecks" id="alsoDays" role="group" aria-labelledby="alsoLbl"></div></div>
       </form>
@@ -370,6 +377,45 @@ button, input, select, textarea { font: inherit; color: inherit; }
   function cloneTo(c, day) {
     var n = Object.assign({}, c); n.id = state.nextId++; n.day = day; state.classes.push(n);
   }
+  // ---- time pickers: hour + minute (every 5 minutes), duration chips, end follows start ----
+  var fSH = $('fStartH'), fSM = $('fStartM'), fEH = $('fEndH'), fEM = $('fEndM'), lastStart = 0;
+  function fillNum(sel, from, to, step) {
+    var h = '';
+    for (var v = from; v <= to; v += step) h += '<option value="' + v + '">' + pad(v) + '</option>';
+    sel.innerHTML = h;
+  }
+  fillNum(fSH, 5, 23, 1); fillNum(fEH, 5, 23, 1); fillNum(fSM, 0, 55, 5); fillNum(fEM, 0, 55, 5);
+  function ensureOpt(sel, v) {
+    if (sel.querySelector('option[value="' + v + '"]')) return;
+    var o = document.createElement('option'); o.value = v; o.textContent = pad(v);
+    var placed = false;
+    Array.prototype.forEach.call(sel.options, function (x) { if (!placed && +x.value > v) { sel.insertBefore(o, x); placed = true; } });
+    if (!placed) sel.appendChild(o);
+  }
+  function getT(hs, ms) { return +hs.value * 60 + +ms.value; }
+  function setT(hs, ms, m) {
+    m = Math.max(300, Math.min(1435, m));
+    var h = Math.floor(m / 60), mi = m % 60;
+    ensureOpt(hs, h); ensureOpt(ms, mi);
+    hs.value = String(h); ms.value = String(mi);
+  }
+  var DURS = [60, 90, 120, 150, 180, 240];
+  $('durs').innerHTML = DURS.map(function (d) { return '<button type="button" class="dur" data-d="' + d + '" aria-pressed="false">' + dur(d) + '</button>'; }).join('');
+  function paintDurs() {
+    var d = getT(fEH, fEM) - getT(fSH, fSM);
+    Array.prototype.forEach.call($('durs').children, function (b) { b.setAttribute('aria-pressed', String(+b.dataset.d === d)); });
+  }
+  $('durs').addEventListener('click', function (e) {
+    var b = e.target.closest('.dur'); if (!b) return;
+    setT(fEH, fEM, getT(fSH, fSM) + +b.dataset.d); paintDurs();
+  });
+  function onStartChange() {
+    var len = Math.max(5, getT(fEH, fEM) - lastStart);
+    lastStart = getT(fSH, fSM);
+    setT(fEH, fEM, lastStart + len); paintDurs();
+  }
+  fSH.addEventListener('change', onStartChange); fSM.addEventListener('change', onStartChange);
+  fEH.addEventListener('change', paintDurs); fEM.addEventListener('change', paintDurs);
   function paintSwatches() {
     Array.prototype.forEach.call(sw.children, function (b) { b.setAttribute('aria-pressed', String(+b.dataset.c === pickedColor)); });
   }
@@ -411,8 +457,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
     var d = c || preset || {};
     $('fName').value = d.name || ''; $('fCode').value = d.code || ''; $('fRoom').value = d.room || ''; $('fTeacher').value = d.teacher || '';
     $('fDay').value = d.day || 1;
-    $('fStart').value = fmt(d.s != null ? d.s : state.startH * 60);
-    $('fEnd').value = fmt(d.e != null ? d.e : Math.min(state.startH * 60 + 120, 23 * 60));
+    var st = d.s != null ? d.s : state.startH * 60;
+    setT(fSH, fSM, st); lastStart = getT(fSH, fSM);
+    setT(fEH, fEM, d.e != null ? d.e : Math.min(st + 120, 23 * 60)); paintDurs();
     pickedColor = d.c || (state.classes.length % COLORS) + 1; paintSwatches();
     $('err').textContent = '';
     setChecks(also, []);
@@ -426,9 +473,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
   $('addBtn').addEventListener('click', function () { openForm(null, null); });
   $('cancelBtn').addEventListener('click', closeForm);
   $('saveBtn').addEventListener('click', function () {
-    var name = $('fName').value.trim(), s = parse($('fStart').value), e = parse($('fEnd').value);
+    var name = $('fName').value.trim(), s = getT(fSH, fSM), e = getT(fEH, fEM);
     if (!name) { $('err').textContent = 'กรอกชื่อวิชาก่อนบันทึก'; $('fName').focus(); return; }
-    if (s == null || e == null) { $('err').textContent = 'เลือกเวลาเริ่มและเวลาเลิก'; return; }
+    if (isNaN(s) || isNaN(e)) { $('err').textContent = 'เลือกเวลาเริ่มและเวลาเลิก'; return; }
     if (e <= s) { $('err').textContent = 'เวลาเลิกต้องหลังเวลาเริ่ม'; return; }
     var rec = { name: name, code: $('fCode').value.trim(), room: $('fRoom').value.trim(), teacher: $('fTeacher').value.trim(), day: +$('fDay').value, s: s, e: e, c: pickedColor };
     if (editingId != null) {
